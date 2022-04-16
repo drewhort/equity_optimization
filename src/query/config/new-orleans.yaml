@@ -1,0 +1,58 @@
+# Add file paths for your city boundary, origin blocks, and destinations. Enter False in all fields if data already exists on the SQL database
+set_up:
+  # for US cities use 4269, NZ cities use 4326, otherwise use whatever the origin blocks has been projected in
+  projection: 4269
+  # Use a seperate file for each dest type, use the same order as 'services' below
+  destination_file_directory:
+    - /homedirs/projects/equitable_facility_location/data/new-orleans/la_supermarket.shp
+    - /homedirs/projects/equitable_facility_location/data/new-orleans/blck_grp_centroids.shp
+  # name of column in shapefile to keep for matching with destination data
+  dest_id_colname:
+    - index
+    - GEOID10
+  origin_file_directory: /homedirs/projects/equitable_facility_location/data/new-orleans/tl_2010_22071_tabblock10.shp
+
+# Which services do you want to evalaute? (must match 'dest_type' name from destination matix, unless script_mode='setup') TYPE: lst of str's
+services:
+  - supermarket
+  - bg_centroid
+
+# What mode of transport are you evaluating? ['driving', 'walking', 'cycling'] TYPE: str
+transport_mode: walking
+
+# What metric would you like to evaluate? comment one out, leaving in list TYPE: str
+metric:
+  - distance
+  - duration
+
+# What percent of CPU cores would you like to utilise? [0.0 - 1.0] TYPE: float
+par_frac: 0.9
+
+# What name would save the distance matrix as? TYPE: str
+SQL:
+  create_db: True
+  database_name: neworleans_supermarkets # this is the name of the database
+  table_name: distance # this is the name for the table of distances
+  port: '5001'
+  host: 132.181.102.2
+
+
+location:
+    city: New-Orleans
+    city_code: nor
+    # State code (e.g. 'wa' for Washington, Seattle), this selects the SQL database, 'access_{state}' TYPE: str
+    state: la
+    country: us
+
+# For logging information and downloading the latest OSM data (Check osm_region/osm_subregion for the osm.pbf download link from https://download.geofabrik.de/north-america/us.html) TYPE: str
+OSM:
+    osm_subregion: louisiana
+    osm_region: north-america/us
+    # where do you want your OSM data saved
+    data_directory: /homedirs/tml62/osm
+
+OSRM:
+    host: http://localhost
+    port: '6010'
+    # Do you want the port closed after use? [True, False] TYPE: bool
+    shutdown: True
