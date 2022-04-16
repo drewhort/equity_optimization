@@ -165,22 +165,34 @@ def piecewise_linear(origins, destinations, populations, distances, open_total, 
 
 def kp_linear_exact(origins, destinations, populations, distances, open_total, open_current, alpha):
     model = Model()
-    # model.setPresolve(pyscipopt.scip.PY_SCIP_PARAMSETTING.OFF)
+    
     logger.info('set variables')
     # x_d is binary, 1 if destination d is opened, 0 otherwise
     x = {d: model.addVar(vtype="B") for d in destinations}
     # y_o,d is binary, 1 if destination d is assigned to origin o, 0 otherwise
     y = {i: model.addVar(vtype="B") for i in itertools.product(origins, destinations)}
-
+    # w_o is a variable used as shorthand in the objective function
+    w = {o: model.addVar(vtype="C") for o in origins} # took out name="w(%s)" % (o) from this
+    
+    logger.info('set objectives')
+    
+    #formulating the exact linear objective function
+    model.setObjective(quicksum(w[o] for o in origins), 'minimize')
+    
     logger.info('set constraints')
+    
+    #constraint: shorthand for the objective function
+    for o in origins:
+        model.addCons((w[o] -quicksum(populations[o]*y[o,d]*exp(alpha*distances[o,d]) for d in destinations)) == 0)
+    
     # constraint: each origin can only be assigned a single destination
     for o in origins:
-        model.addCons(quicksum(y[o, d] for d in destinations) == 1)
+        model.addCons(quicksum(y[o,d] for d in destinations) == 1)
     
     # constraint: an origin cannot be assigned an unopen destination
     for d in destinations:
         for o in origins:
-            model.addCons(y[o, d]-x[d] <= 0)
+            model.addCons(y[o,d]-x[d] <= 0)
 
     # constraint: the sum of open destinations should equal the number we want to be open
     model.addCons(quicksum(x[d] for d in destinations) == open_total)
@@ -188,29 +200,19 @@ def kp_linear_exact(origins, destinations, populations, distances, open_total, o
     # constraint: which destinations are already open
     for d in open_current:
         model.addCons(x[d] == 1)
-  
-    #formulating the Kolm-Pollak EDE
-    w = {o: model.addVar(vtype="C", name="w(%s)" % (o)) for o in origins}
-    for o in origins:
-        #evaluate the EDE
-        model.addCons((w[o] -quicksum(populations[o]*y[o,d]*exp(alpha*distances[o,d]) for d in destinations)) == 0)
-
-    # objective: minimise the kolmpollak EDE
-    # logger.info('set objective')
-    # model.setObjective(quicksum(populations[o]*y[o,d]*exp(alpha*distances[o,d]) for d in destinations for o in origins), 'minimize')
-
-    print(alpha)
-    model.setObjective(quicksum(w[o] for o in origins), 'minimize')
 
     # solve the model
     logger.info('optimizing')
-    # model.setPresolve(SCIP_PARAMSETTING.OFF)
-    # set_optimizer_attribute(model, "presolving/maxrounds", 0)
-    model.optimize()
 
+    model.optimize()
+    
+    logger.info('optimization complete')
+    
     # identify which facilities are opened (i.e., their value = 1)
+    # np.where creates a 2-dim array, and the [0] at the end pulls only the first elements of the array which are the indices of the x's
     new_facilities = np.where([int(round(model.getVal(x[d]))) for d in destinations])[0]
-    print(model. getObjVal ())
+    
+    #print(model. getObjVal ())
     return(new_facilities)
 
 def pmedian(origins, destinations, populations, distances, open_total, open_current):
