@@ -1,0 +1,12 @@
+location: grid
+optimize: piecewise_linear
+epsilon: -1
+
+# how many destinations should be opened
+num_to_open: 2
+
+# if grid
+grid_size: 4
+open_current: []
+
+plot: True

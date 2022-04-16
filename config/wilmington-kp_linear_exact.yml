@@ -1,0 +1,16 @@
+location: wilmington
+optimize: kp_linear_exact
+epsilon: -1
+
+service: supermarket
+
+# add or restore
+objective: add  #restore # 
+
+# --- if add ---
+candidate: gas_station
+# how many destinations should be opened
+num_to_open: 5
+
+plot: False
+

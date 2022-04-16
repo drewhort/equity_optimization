@@ -1,0 +1,9 @@
+# Wilmingotn
+services:
+  - 'supermarket'
+  - 'gas_station'
+
+filenames:
+- wilmington/wilmington-destinations.csv
+- wilmington/wilmington-distances.csv
+- wilmington/wilmington-population.csv

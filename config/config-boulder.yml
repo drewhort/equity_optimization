@@ -1,0 +1,10 @@
+# boulder
+services:
+  - 'supermarket'
+  - 'bg_centroid'
+
+filenames:
+- boulder/boulder_co-destinations.csv
+- boulder/boulder_co-distances.csv
+- boulder/boulder_co-population.csv
+

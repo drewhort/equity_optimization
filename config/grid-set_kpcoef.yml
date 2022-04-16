@@ -1,0 +1,13 @@
+location: grid
+optimize: set_kpcoef
+epsilon: -1
+
+# how many destinations should be opened
+# num_to_open: 2
+
+# if grid
+grid_size: 15
+open_current: [49]
+
+plot: True
+

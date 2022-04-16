@@ -1,0 +1,14 @@
+location: grid
+optimize: kp_linear_exact
+epsilon: -1
+
+# how many destinations should be opened
+num_to_open: 3
+
+# if grid
+grid_size: 45
+
+open_current: []
+
+plot: True
+

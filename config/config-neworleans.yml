@@ -1,0 +1,9 @@
+# New Orleans
+services:
+  - 'supermarket'
+  - 'bg_centroid'
+
+filenames:
+- new_orleans_la/new_orleans_la-destinations.csv
+- new_orleans_la/new_orleans_la-distances.csv
+- new_orleans_la/new_orleans_la-population.csv

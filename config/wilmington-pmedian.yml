@@ -1,0 +1,15 @@
+location: wilmington
+optimize: pmedian
+epsilon: -1
+
+service: supermarket
+
+# add or restore
+objective: restore # add  
+num_to_open: 1
+
+# --- if add ---
+candidate: gas_station
+# how many destinations should be opened
+
+plot: False

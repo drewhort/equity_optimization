@@ -1,0 +1,9 @@
+# New Orleans
+services:
+  - 'supermarket'
+  - 'bg_centroid'
+
+filenames:
+- denver/denver-destinations.csv
+- denver/denver-distances.csv
+- denver/denver-population.csv
