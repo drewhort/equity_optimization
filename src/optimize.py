@@ -43,13 +43,12 @@ def set_kpcoef(origins, destinations, populations, distances, open_current, alph
         model.addCons(x[d] == 1)
         
     # Kolm-Pollak Constraint
-    model.addCons(quicksum(populations[o]*y[o,d]*exp(alpha*distances[o,d])
+    model.addCons(quicksum(populations[o]*y[o,d]*distances[o,d]
                            for d in destinations for o in origins) - kpcoef <= 0)
     
     # NEW objective: minimize the number of destinations
     logger.info('set objective')
-    model.setObjective(quicksum(x[d] for d in destinations), 'minimize')
-   
+    model.setObjective(quicksum(x[d] for d in destinations), 'minimize')   
     
     # solve the model
     logger.info('optimizing')
@@ -172,18 +171,19 @@ def kp_linear_exact(origins, destinations, populations, distances, open_total, o
     # y_o,d is binary, 1 if destination d is assigned to origin o, 0 otherwise
     y = {i: model.addVar(vtype="B") for i in itertools.product(origins, destinations)}
     # w_o is a variable used as shorthand in the objective function
-    w = {o: model.addVar(vtype="C") for o in origins} # took out name="w(%s)" % (o) from this
+    # w = {o: model.addVar(vtype="C") for o in origins} # took out name="w(%s)" % (o) from this
     
     logger.info('set objectives')
     
     #formulating the exact linear objective function
-    model.setObjective(quicksum(w[o] for o in origins), 'minimize')
-    
+    #model.setObjective(quicksum(w[o] for o in origins), 'minimize')
+    model.setObjective(quicksum(populations[o]*y[o,d]*distances[o,d] for d in destinations for o in origins), 'minimize')    
+
     logger.info('set constraints')
     
     #constraint: shorthand for the objective function
-    for o in origins:
-        model.addCons((w[o] -quicksum(populations[o]*y[o,d]*exp(alpha*distances[o,d]) for d in destinations)) == 0)
+    #for o in origins:
+        #model.addCons((w[o] -quicksum(populations[o]*y[o,d]*exp(alpha*distances[o,d]) for d in destinations)) == 0)
     
     # constraint: each origin can only be assigned a single destination
     for o in origins:
@@ -255,4 +255,3 @@ def pmedian(origins, destinations, populations, distances, open_total, open_curr
     # identify which facilities are opened (i.e., their value = 1)
     new_facilities = np.where([int(round(model.getVal(x[d]))) for d in destinations])[0]
     return(new_facilities)
-
