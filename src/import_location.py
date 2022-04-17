@@ -137,4 +137,3 @@ def calculate_kappa(location, config):
     print(alpha)
 
     return alpha
-
