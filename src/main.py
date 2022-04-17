@@ -22,14 +22,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # config_filename = 'denver-set_kpcoef'
-# config_filename = 'neworleans-set_kpcoef'
+config_filename = 'neworleans-set_kpcoef'
 # config_filename = 'neworleans-kp_linear_exact'
 # config_filename = 'neworleans-pmedian'
 # config_filename = 'grid-set_kpcoef'
 # config_filename = 'denver-kp_linear_exact'
 # config_filename = 'grid-kp_linear_exact'
 # config_filename = 'wilmington-set_kpcoef'
-config_filename = 'wilmington-kp_linear_exact'
+# config_filename = 'wilmington-kp_linear_exact'
 # config_filename = 'wilmington-pmedian'
 
 def main():
@@ -59,7 +59,24 @@ def optimize_facility_location(config, location):
     populations, distances = location['populations'], location['distances']
     open_current = location['existing']
 
-#trying to fix error of open total     
+    #below is code added to adjust the distances in the data frame to be e^(alpha*d[o,d]), which cuts down computation time significantly during optimization
+    if config['optimize'] == 'pmedian':
+        distances = location['distances']
+    else:
+        #print('debug100',distances[(371299801001000, 197412)])
+        #print('debug101',np.exp(location['alpha']*distances[(371299801001000, 197412)]))
+        #distances[(371299801001000, 197412)]=np.exp(location['alpha']*distances[(371299801001000, 197412)])
+        for key in distances.keys():
+            #distances[key] = np.exp(location['alpha']*distances[key])
+            d_key=distances[key]  
+            #for distances larger than 63, scip can not handle how big the number e^(alpha*d[o,d]) is, there are only 76 values of d[o,d] larger than 63
+            if d_key < 63: distances[key] = np.exp(location['alpha']*distances[key])
+            else: 
+                #print('key, too big',np.exp(location['alpha']*d_key))
+                distances[key]=np.exp(location['alpha']*63)
+                #print('too big!!!!',key,np.exp(location['alpha']*63))
+
+    #added to fix error of open total     
     if config['optimize'] == 'pmedian':
         open_total = len(open_current) + config['num_to_open']
     elif config['optimize'] == 'kolmpollak':
@@ -84,7 +101,7 @@ def optimize_facility_location(config, location):
                                              distances, open_total, open_current, location['alpha']) 
     elif config['optimize'] == 'set_kpcoef':
         open_optimal = optimize.set_kpcoef(origins, destinations, populations, 
-                                             distances, open_current, location['alpha'], kpcoef=12186)        
+                                             distances, open_current, location['alpha'], kpcoef=349301)        
                                                                            	
     return(open_optimal)
 
@@ -113,6 +130,8 @@ def plot_grid(config, open_optimal):
 
     figname = 'fig/{location}-{optimize}'.format(location=config['location'],optimize=config['optimize'])
     plt.savefig(figname + '_' + time.strftime("%Y-%m-%d_%H%M%S") + '.png')
+
+
 
 def plot_map(config, open_optimal, location):
     '''
