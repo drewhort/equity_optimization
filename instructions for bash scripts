@@ -1,0 +1,19 @@
+bash scripts 'instructions'
+
+
+'outer shell'
+to run set_kp_coef(still need to change the config line in main)
+
+sbatch no_min.sh
+
+to run kp_linear_exact(still need to change the config line in main)
+
+sbatch no_le.sh
+
+
+
+'innner shell' 
+
+This file is called by both no_min.sh and no_le.sh
+
+kp_grocery.sh 
